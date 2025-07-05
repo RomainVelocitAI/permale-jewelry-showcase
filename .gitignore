@@ -1,5 +1,3 @@
-DepthFlow/
-MPParallaxView/
-jarallax/
-permale/
 *.log
+.DS_Store
+node_modules/
