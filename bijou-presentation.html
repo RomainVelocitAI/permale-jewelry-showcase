@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Éternité - PERMALE</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Jarallax CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --permale-black: #000000;
+            --permale-white: #ffffff;
+            --permale-gold: #D4AF37;
+            --permale-silver: #C0C0C0;
+            --permale-light-grey: #f8f8f8;
+            --permale-cream: #fefefe;
+            --permale-dark-grey: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: var(--permale-white);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* SECTIONS PARALLAXE PLEINE PAGE */
+        .parallax-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parallax-section .jarallax {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120%;
+            z-index: -1;
+        }
+
+        .parallax-section .jarallax-img {
+            filter: none;
+        }
+
+        /* Optimisation des images de fond */
+        .jarallax-img {
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .permale-logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            height: 40px;
+            filter: invert(1);
+        }
+
+        /* SYSTEME DE CARTES PARALLAXE */
+        .parallax-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            perspective: 1000px;
+        }
+
+        .parallax-card {
+            width: 400px;
+            height: 600px;
+            position: relative;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            z-index: 10;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .parallax-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+        }
+
+        /* Couches par profondeur */
+        .layer-background {
+            z-index: 1;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+
+        .layer-particles {
+            z-index: 2;
+            opacity: 0.6;
+        }
+
+        .layer-decorative {
+            z-index: 3;
+            opacity: 0.8;
+        }
+
+        .layer-main {
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .layer-text {
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 3rem;
+            background: linear-gradient(transparent 0%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Contenu des cartes */
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--permale-gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .card-subtitle {
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .card-cta {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .card-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .jewelry-main {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--permale-gold);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.3);
+        }
+
+
+        /* Particules dorées flottantes */
+        .gold-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--permale-gold);
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: floatParticle 8s infinite linear;
+        }
+
+        .gold-particle.large {
+            width: 5px;
+            height: 5px;
+            opacity: 0.9;
+            animation-duration: 12s;
+        }
+
+        .gold-particle.small {
+            width: 2px;
+            height: 2px;
+            opacity: 0.5;
+            animation-duration: 6s;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Section de contenu */
+        .content-section {
+            position: relative;
+            z-index: 5;
+            padding: 6rem 2rem;
+            background: rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Grille de cartes */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Particules dorées */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--permale-gold);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .parallax-card {
+                width: 350px;
+                height: 500px;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .card-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo PERMALE -->
+    <img src="./permale/soloo fin blc.png" alt="PERMALE" class="permale-logo">
+
+    <!-- Section Hero avec Parallaxe -->
+    <section class="parallax-section">
+        <!-- Fond parallaxe avec particules -->
+        <div class="jarallax" data-speed="0.6">
+            <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+        </div>
+        
+        <!-- Contenu au premier plan -->
+        <div class="parallax-container">
+            <div class="parallax-card" id="heroCard">
+                <div class="glow-effect" id="heroGlow"></div>
+                
+                <!-- Particules -->
+                <div class="parallax-layer layer-particles" id="heroParticles"></div>
+                
+                <!-- Élément principal -->
+                <div class="parallax-layer layer-main">
+                    <img src="./images/hero-jewelry.jpg" alt="Création PERMALE" class="jewelry-main">
+                </div>
+                
+                <!-- Texte -->
+                <div class="parallax-layer layer-text">
+                    <h1 class="card-title">Création Unique</h1>
+                    <p class="card-subtitle">Votre Bijou Sur-Mesure PERMALE</p>
+                    <button class="card-cta">Découvrir</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Origine avec Parallaxe -->
+    <section class="parallax-section">
+        <div class="jarallax" data-speed="0.4">
+            <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+        </div>
+        <div class="content-section">
+            <div class="cards-grid">
+                <div class="parallax-card" id="origineCard">
+                    <div class="glow-effect" id="origineGlow"></div>
+                    <div class="parallax-layer layer-particles" id="origineParticles"></div>
+                    <div class="parallax-layer layer-main">
+                        <img src="./images/rings.jpg" alt="Bagues" class="jewelry-main">
+                    </div>
+                    <div class="parallax-layer layer-text">
+                        <h2 class="card-title">Origine</h2>
+                        <p class="card-subtitle">Matières Nobles d'Exception</p>
+                        <button class="card-cta">Explorer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Savoir-Faire avec Parallaxe -->
+    <section class="parallax-section">
+        <div class="jarallax" data-speed="0.3">
+            <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+        </div>
+        <div class="content-section">
+            <div class="cards-grid">
+                <div class="parallax-card" id="craftCard">
+                    <div class="glow-effect" id="craftGlow"></div>
+                    <div class="parallax-layer layer-particles" id="craftParticles"></div>
+                    <div class="parallax-layer layer-main">
+                        <img src="./images/faconnage.jpg" alt="Façonnage" class="jewelry-main">
+                    </div>
+                    <div class="parallax-layer layer-text">
+                        <h2 class="card-title">Savoir-Faire</h2>
+                        <p class="card-subtitle">L'Art de la Joaillerie</p>
+                        <button class="card-cta">Découvrir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Émotions avec Parallaxe -->
+    <section class="parallax-section">
+        <div class="jarallax" data-speed="0.5">
+            <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+        </div>
+        <div class="content-section">
+            <div class="cards-grid">
+                <div class="parallax-card" id="emotionCard">
+                    <div class="glow-effect" id="emotionGlow"></div>
+                    <div class="parallax-layer layer-particles" id="emotionParticles"></div>
+                    <div class="parallax-layer layer-main">
+                        <img src="./images/gems.jpg" alt="Pierres" class="jewelry-main">
+                    </div>
+                    <div class="parallax-layer layer-text">
+                        <h2 class="card-title">Émotions</h2>
+                        <p class="card-subtitle">Plus qu'un Bijou</p>
+                        <button class="card-cta">Ressentir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section CTA avec Parallaxe -->
+    <section class="parallax-section">
+        <div class="jarallax" data-speed="0.2">
+            <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+        </div>
+        <div class="content-section">
+            <div class="cards-grid">
+                <div class="parallax-card" id="ctaCard">
+                    <div class="glow-effect" id="ctaGlow"></div>
+                    <div class="parallax-layer layer-particles" id="ctaParticles"></div>
+                    <div class="parallax-layer layer-main">
+                        <img src="./images/spectrelogo.png" alt="PERMALE" style="width: 200px; height: auto; filter: invert(1) sepia(1) hue-rotate(30deg);">
+                    </div>
+                    <div class="parallax-layer layer-text">
+                        <h2 class="card-title">Créons Ensemble</h2>
+                        <p class="card-subtitle">Votre bijou unique commence ici</p>
+                        <button class="card-cta">Commencer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jarallax JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.js"></script>
+    
+    <script>
+        // Configuration des effets parallaxe
+        const parallaxConfig = {
+            maxRotation: 15,
+            maxTranslation: 20,
+            glowSize: 300
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            console.log('Jarallax available:', typeof jarallax);
+            
+            // Initialiser Jarallax avec options
+            jarallax(document.querySelectorAll('.jarallax'), {
+                speed: 0.5,
+                imgSize: 'cover',
+                imgPosition: 'center center'
+            });
+            
+            console.log('Jarallax initialized');
+            
+            createParticles();
+            createFloatingParticles();
+            initParallaxCards();
+        });
+
+        function createParticles() {
+            const particleContainers = ['heroParticles', 'origineParticles', 'craftParticles', 'emotionParticles', 'ctaParticles'];
+            
+            particleContainers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    for (let i = 0; i < 15; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = Math.random() * 100 + '%';
+                        particle.style.animationDelay = Math.random() * 3 + 's';
+                        container.appendChild(particle);
+                    }
+                }
+            });
+        }
+
+        function initParallaxCards() {
+            const cards = document.querySelectorAll('.parallax-card');
+            
+            cards.forEach(card => {
+                const glow = card.querySelector('.glow-effect');
+                const layers = card.querySelectorAll('.parallax-layer');
+                
+                card.addEventListener('mousemove', (e) => {
+                    handleMouseMove(e, card, glow, layers);
+                });
+                
+                card.addEventListener('mouseenter', (e) => {
+                    glow.style.opacity = '1';
+                    card.style.transform = 'scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', (e) => {
+                    resetCard(card, glow, layers);
+                });
+            });
+        }
+
+        function handleMouseMove(e, card, glow, layers) {
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const deltaX = (e.clientX - centerX) / (rect.width / 2);
+            const deltaY = (e.clientY - centerY) / (rect.height / 2);
+            
+            // Rotation de la carte
+            const rotateY = deltaX * parallaxConfig.maxRotation;
+            const rotateX = -deltaY * parallaxConfig.maxRotation;
+            
+            card.style.transform = `scale(1.02) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            
+            // Effet glow
+            const glowX = e.clientX - rect.left - parallaxConfig.glowSize / 2;
+            const glowY = e.clientY - rect.top - parallaxConfig.glowSize / 2;
+            glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+            
+            // Parallaxe des couches
+            layers.forEach((layer, index) => {
+                const depth = (index + 1) * 2;
+                const translateX = deltaX * depth;
+                const translateY = deltaY * depth;
+                
+                if (!layer.classList.contains('layer-text')) {
+                    layer.style.transform = `translate(${translateX}px, ${translateY}px)`;
+                }
+            });
+        }
+
+        function resetCard(card, glow, layers) {
+            card.style.transform = 'scale(1) rotateX(0deg) rotateY(0deg)';
+            glow.style.opacity = '0';
+            
+            layers.forEach(layer => {
+                layer.style.transform = 'translate(0px, 0px)';
+            });
+        }
+
+        function createFloatingParticles() {
+            const jarallaxElements = document.querySelectorAll('.jarallax');
+            
+            jarallaxElements.forEach(jarallax => {
+                // Créer un conteneur de particules
+                const particleContainer = document.createElement('div');
+                particleContainer.style.position = 'absolute';
+                particleContainer.style.top = '0';
+                particleContainer.style.left = '0';
+                particleContainer.style.width = '100%';
+                particleContainer.style.height = '100%';
+                particleContainer.style.pointerEvents = 'none';
+                particleContainer.style.zIndex = '2';
+                
+                // Créer 15 particules par fond
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'gold-particle';
+                    
+                    // Varier les tailles
+                    const rand = Math.random();
+                    if (rand < 0.3) particle.classList.add('small');
+                    else if (rand > 0.7) particle.classList.add('large');
+                    
+                    // Position aléatoire
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    
+                    // Délai d'animation aléatoire
+                    particle.style.animationDelay = Math.random() * 8 + 's';
+                    
+                    particleContainer.appendChild(particle);
+                }
+                
+                jarallax.appendChild(particleContainer);
+            });
+        }
+    </script>
+</body>
+</html>

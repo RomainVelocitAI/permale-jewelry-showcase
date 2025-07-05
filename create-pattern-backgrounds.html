@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de fonds PERMALE</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .canvas-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        canvas {
+            border: 2px solid #333;
+            margin: 10px;
+        }
+        
+        button {
+            background: #D4AF37;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #B8941F;
+        }
+    </style>
+</head>
+<body>
+    <h1>Générateur de fonds avec motifs PERMALE</h1>
+    
+    <div class="canvas-container">
+        <h2>Fond Couleur 1 (Blanc/Crème)</h2>
+        <canvas id="canvas1" width="1920" height="1080"></canvas>
+        <br>
+        <button onclick="downloadCanvas('canvas1', 'permale-fond-1.png')">Télécharger Fond 1</button>
+    </div>
+    
+    <div class="canvas-container">
+        <h2>Fond Couleur 2 (Beige/Doré)</h2>
+        <canvas id="canvas2" width="1920" height="1080"></canvas>
+        <br>
+        <button onclick="downloadCanvas('canvas2', 'permale-fond-2.png')">Télécharger Fond 2</button>
+    </div>
+
+    <script>
+        // Couleurs PERMALE
+        const colors = {
+            white: '#ffffff',
+            cream: '#fefefe',
+            lightGrey: '#f8f8f8',
+            beige: '#f5f2e8',
+            gold: '#D4AF37',
+            darkGold: '#B8941F'
+        };
+
+        function createPattern1() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            
+            // Fond dégradé blanc/crème
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colors.white);
+            gradient.addColorStop(0.5, colors.cream);
+            gradient.addColorStop(1, colors.lightGrey);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ajouter des motifs géométriques subtils
+            ctx.strokeStyle = colors.gold;
+            ctx.lineWidth = 0.5;
+            ctx.globalAlpha = 0.1;
+            
+            // Lignes diagonales dorées
+            for (let i = -100; i < canvas.width + 100; i += 80) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + 200, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Points dorés dispersés
+            ctx.fillStyle = colors.gold;
+            ctx.globalAlpha = 0.15;
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const radius = Math.random() * 2 + 1;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Formes géométriques dorées très subtiles
+            ctx.globalAlpha = 0.08;
+            ctx.fillStyle = colors.darkGold;
+            for (let i = 0; i < 20; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 30 + 10;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(Math.random() * Math.PI);
+                ctx.fillRect(-size/2, -size/2, size, size);
+                ctx.restore();
+            }
+        }
+
+        function createPattern2() {
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            
+            // Fond dégradé beige/doré
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colors.cream);
+            gradient.addColorStop(0.5, colors.beige);
+            gradient.addColorStop(1, '#f0e6d2');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Motifs dorés plus visibles
+            ctx.strokeStyle = colors.gold;
+            ctx.lineWidth = 0.8;
+            ctx.globalAlpha = 0.15;
+            
+            // Lignes ondulées dorées
+            for (let i = 0; i < canvas.height; i += 60) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                for (let x = 0; x < canvas.width; x += 20) {
+                    const y = i + Math.sin(x * 0.01) * 10;
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            
+            // Cercles dorés
+            ctx.strokeStyle = colors.darkGold;
+            ctx.globalAlpha = 0.12;
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const radius = Math.random() * 50 + 20;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Triangles dorés
+            ctx.fillStyle = colors.gold;
+            ctx.globalAlpha = 0.1;
+            for (let i = 0; i < 15; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 25 + 15;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y - size);
+                ctx.lineTo(x - size, y + size);
+                ctx.lineTo(x + size, y + size);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Créer les motifs au chargement
+        window.onload = function() {
+            createPattern1();
+            createPattern2();
+        };
+    </script>
+</body>
+</html>

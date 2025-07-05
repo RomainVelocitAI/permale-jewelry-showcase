@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histoire PERMALE - Présentation Interactive</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Jarallax CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --permale-black: #000000;
+            --permale-white: #ffffff;
+            --permale-gold: #D4AF37;
+            --permale-silver: #C0C0C0;
+            --permale-light-grey: #f8f8f8;
+            --permale-cream: #fefefe;
+            --permale-dark-grey: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* CONTENEUR PRINCIPAL */
+        .story-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* SECTIONS D'HISTOIRE */
+        .story-section {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 1s ease-in-out;
+        }
+
+        .story-section.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .story-section.previous {
+            transform: translateX(-100%);
+        }
+
+        /* FOND PARALLAXE */
+        .jarallax {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* CARTE 3D CENTRÉE */
+        .story-card {
+            width: 500px;
+            height: 700px;
+            position: relative;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            transition: all 0.6s ease;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .story-card:hover {
+            transform: scale(1.05) rotateY(5deg);
+        }
+
+        .story-card.revealed {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%) scale(0.8) rotateY(-10deg);
+            pointer-events: auto;
+            cursor: default;
+        }
+
+        .story-card.revealed:hover {
+            transform: translateY(-50%) scale(0.85) rotateY(-5deg);
+        }
+
+        /* CONTENU DE LA CARTE */
+        .card-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--permale-gold);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.4);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+        }
+
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3rem;
+            background: linear-gradient(transparent 0%, rgba(0,0,0,0.9) 100%);
+            text-align: center;
+            color: white;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--permale-gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .card-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* BOUTON DÉCOUVRIR */
+        .discover-btn {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .discover-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.5);
+        }
+
+        .discover-btn.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        /* TEXTE HISTOIRE (MACHINE À ÉCRIRE) */
+        .text-block {
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45%;
+            color: white;
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 15;
+        }
+
+        .text-block.visible {
+            opacity: 1;
+        }
+
+        .story-text {
+            width: 100%;
+        }
+
+        .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--permale-gold);
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .story-content {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .typewriter {
+            overflow: hidden;
+            border-right: 3px solid var(--permale-gold);
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--permale-gold) }
+        }
+
+        /* BOUTON CONTINUER */
+        .continue-btn {
+            background: transparent;
+            color: var(--permale-gold);
+            border: 2px solid var(--permale-gold);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .continue-btn:hover {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            transform: translateY(15px);
+        }
+
+        .continue-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 4s;
+        }
+
+        /* LOGO PERMALE */
+        .permale-logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            height: 40px;
+            filter: invert(1);
+        }
+
+        /* INDICATEUR DE PROGRESSION */
+        .progress-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-dot.active {
+            background: var(--permale-gold);
+            transform: scale(1.2);
+        }
+
+        /* OVERLAY MASQUAGE */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .story-card {
+                width: 350px;
+                height: 500px;
+            }
+            
+            .story-card.revealed {
+                right: 5%;
+                width: 300px;
+                height: 400px;
+                transform: translateY(-50%) scale(0.7);
+            }
+            
+            .text-block {
+                width: 50%;
+                left: 5%;
+            }
+            
+            .story-title {
+                font-size: 2rem;
+            }
+            
+            .story-content {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo PERMALE -->
+    <img src="./permale/soloo fin blc.png" alt="PERMALE" class="permale-logo">
+
+    <!-- Conteneur principal -->
+    <div class="story-container">
+        
+        <!-- Section 1: Création Unique -->
+        <div class="story-section active" data-section="0">
+            <div class="jarallax" data-speed="0.6">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            
+            <div class="overlay"></div>
+            
+            <div class="story-card" onclick="revealStory(0)">
+                <img src="./images/hero-jewelry.jpg" alt="Création PERMALE" class="card-image">
+                <div class="card-content">
+                    <h1 class="card-title">Création Unique</h1>
+                    <p class="card-subtitle">Votre Histoire Commence Ici</p>
+                    <button class="discover-btn">Commencer</button>
+                </div>
+            </div>
+            
+            <div class="text-block">
+                <div class="story-text">
+                    <h2 class="story-title" id="title-0">Votre Histoire</h2>
+                    <div class="story-content">
+                        <p id="text-0">Chaque bijou PERMALE raconte une histoire unique. Votre histoire. Celle d'un moment précieux, d'une émotion gravée dans l'or et les pierres précieuses. Nous transformons vos rêves en créations d'exception, façonnées avec passion et savoir-faire ancestral.</p>
+                    </div>
+                    <button class="continue-btn" onclick="nextSection()">Continuer l'Histoire</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Origine -->
+        <div class="story-section" data-section="1">
+            <div class="jarallax" data-speed="0.4">
+                <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+            </div>
+            
+            <div class="overlay"></div>
+            
+            <div class="story-card" onclick="revealStory(1)">
+                <img src="./images/rings.jpg" alt="Matières Nobles" class="card-image">
+                <div class="card-content">
+                    <h1 class="card-title">Origine</h1>
+                    <p class="card-subtitle">Matières Nobles d'Exception</p>
+                    <button class="discover-btn">Découvrir</button>
+                </div>
+            </div>
+            
+            <div class="text-block">
+                <div class="story-text">
+                    <h2 class="story-title" id="title-1">Matières Précieuses</h2>
+                    <div class="story-content">
+                        <p id="text-1">Nos créations naissent de la rencontre entre l'or le plus pur et les pierres les plus rares. Chaque matière première est sélectionnée avec un soin extrême, garantissant l'éclat éternel de votre bijou. De l'or 18 carats aux diamants certifiés, nous ne travaillons qu'avec l'excellence.</p>
+                    </div>
+                    <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Savoir-Faire -->
+        <div class="story-section" data-section="2">
+            <div class="jarallax" data-speed="0.3">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            
+            <div class="overlay"></div>
+            
+            <div class="story-card" onclick="revealStory(2)">
+                <img src="./images/faconnage.jpg" alt="Savoir-Faire" class="card-image">
+                <div class="card-content">
+                    <h1 class="card-title">Savoir-Faire</h1>
+                    <p class="card-subtitle">L'Art de la Joaillerie</p>
+                    <button class="discover-btn">Découvrir</button>
+                </div>
+            </div>
+            
+            <div class="text-block">
+                <div class="story-text">
+                    <h2 class="story-title" id="title-2">Artisanat d'Exception</h2>
+                    <div class="story-content">
+                        <p id="text-2">Nos maîtres joailliers perpétuent un savoir-faire transmis de génération en génération. Chaque geste est précis, chaque détail minutieusement travaillé. Entre tradition et innovation, nous créons des pièces d'une beauté intemporelle qui traverseront les siècles.</p>
+                    </div>
+                    <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Émotions -->
+        <div class="story-section" data-section="3">
+            <div class="jarallax" data-speed="0.5">
+                <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+            </div>
+            
+            <div class="overlay"></div>
+            
+            <div class="story-card" onclick="revealStory(3)">
+                <img src="./images/gems.jpg" alt="Émotions" class="card-image">
+                <div class="card-content">
+                    <h1 class="card-title">Émotions</h1>
+                    <p class="card-subtitle">Plus qu'un Bijou</p>
+                    <button class="discover-btn">Découvrir</button>
+                </div>
+            </div>
+            
+            <div class="text-block">
+                <div class="story-text">
+                    <h2 class="story-title" id="title-3">Moments Éternels</h2>
+                    <div class="story-content">
+                        <p id="text-3">Un bijou PERMALE capture l'essence de vos émotions les plus précieuses. Amour, joie, accomplissement... Chaque création devient le témoin silencieux de vos moments les plus beaux. Porter du PERMALE, c'est porter votre histoire avec élégance.</p>
+                    </div>
+                    <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Votre Création -->
+        <div class="story-section" data-section="4">
+            <div class="jarallax" data-speed="0.2">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            
+            <div class="overlay"></div>
+            
+            <div class="story-card" onclick="revealStory(4)">
+                <img src="./images/spectrelogo.png" alt="PERMALE" class="card-image" style="filter: invert(1) sepia(1) hue-rotate(30deg);">
+                <div class="card-content">
+                    <h1 class="card-title">Votre Création</h1>
+                    <p class="card-subtitle">Réalisons Votre Rêve</p>
+                    <button class="discover-btn">Découvrir</button>
+                </div>
+            </div>
+            
+            <div class="text-block">
+                <div class="story-text">
+                    <h2 class="story-title" id="title-4">Créons Ensemble</h2>
+                    <div class="story-content">
+                        <p id="text-4">Votre bijou unique vous attend. Partagez-nous votre vision, vos désirs, vos inspirations. Ensemble, nous donnerons vie à une création qui vous ressemble, authentique et intemporelle. L'aventure PERMALE commence maintenant.</p>
+                    </div>
+                    <button class="continue-btn" onclick="restartStory()">Recommencer l'Histoire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateur de progression -->
+    <div class="progress-indicator">
+        <div class="progress-dot active" onclick="goToSection(0)"></div>
+        <div class="progress-dot" onclick="goToSection(1)"></div>
+        <div class="progress-dot" onclick="goToSection(2)"></div>
+        <div class="progress-dot" onclick="goToSection(3)"></div>
+        <div class="progress-dot" onclick="goToSection(4)"></div>
+    </div>
+
+    <!-- Jarallax JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.js"></script>
+    
+    <!-- Lax.js for typewriter effect -->
+    <script src="./permale/lax.js/lib/lax.min.js"></script>
+    
+    <script>
+        let currentSection = 0;
+        const totalSections = 5;
+        let isFirstSection = true;
+
+        // Données des textes complets
+        const storyTexts = {
+            titles: [
+                "Votre Histoire",
+                "Matières Précieuses", 
+                "Artisanat d'Exception",
+                "Moments Éternels",
+                "Créons Ensemble"
+            ],
+            contents: [
+                "Chaque bijou PERMALE raconte une histoire unique. Votre histoire. Celle d'un moment précieux, d'une émotion gravée dans l'or et les pierres précieuses. Nous transformons vos rêves en créations d'exception, façonnées avec passion et savoir-faire ancestral.",
+                "Nos créations naissent de la rencontre entre l'or le plus pur et les pierres les plus rares. Chaque matière première est sélectionnée avec un soin extrême, garantissant l'éclat éternel de votre bijou. De l'or 18 carats aux diamants certifiés, nous ne travaillons qu'avec l'excellence.",
+                "Nos maîtres joailliers perpétuent un savoir-faire transmis de génération en génération. Chaque geste est précis, chaque détail minutieusement travaillé. Entre tradition et innovation, nous créons des pièces d'une beauté intemporelle qui traverseront les siècles.",
+                "Un bijou PERMALE capture l'essence de vos émotions les plus précieuses. Amour, joie, accomplissement... Chaque création devient le témoin silencieux de vos moments les plus beaux. Porter du PERMALE, c'est porter votre histoire avec élégance.",
+                "Votre bijou unique vous attend. Partagez-nous votre vision, vos désirs, vos inspirations. Ensemble, nous donnerons vie à une création qui vous ressemble, authentique et intemporelle. L'aventure PERMALE commence maintenant."
+            ]
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            jarallax(document.querySelectorAll('.jarallax'));
+            
+            // Initialiser lax.js
+            lax.init();
+            lax.addDriver('scrollY', function () {
+                return window.scrollY;
+            });
+            
+            updateProgressIndicator();
+        });
+
+        function revealStory(sectionIndex) {
+            const section = document.querySelector(`.story-section[data-section="${sectionIndex}"]`);
+            const card = section.querySelector('.story-card');
+            const overlay = section.querySelector('.overlay');
+            const textBlock = section.querySelector('.text-block');
+            const discoverBtn = section.querySelector('.discover-btn');
+            const continueBtn = section.querySelector('.continue-btn');
+
+            // Masquer le bouton découvrir
+            discoverBtn.classList.add('hidden');
+            
+            // Révéler la carte 3D à droite
+            card.classList.add('revealed');
+            
+            // Afficher l'overlay
+            overlay.classList.add('visible');
+            
+            // Afficher le bloc texte avec effet machine à écrire
+            setTimeout(() => {
+                textBlock.classList.add('visible');
+                startTypewriterEffect(sectionIndex);
+                
+                // Afficher le bouton continuer après l'animation
+                setTimeout(() => {
+                    continueBtn.classList.add('visible');
+                    
+                    // Pour les sections 2+, auto-avancer après 4 secondes
+                    if (sectionIndex > 0) {
+                        setTimeout(() => {
+                            nextSection();
+                        }, 4000);
+                    }
+                }, 4000);
+            }, 800);
+        }
+
+        function startTypewriterEffect(sectionIndex) {
+            const titleElement = document.getElementById(`title-${sectionIndex}`);
+            const textElement = document.getElementById(`text-${sectionIndex}`);
+            
+            // Reset du contenu
+            titleElement.textContent = '';
+            textElement.textContent = '';
+            
+            // Effet typewriter sur le titre avec lax.js onUpdate
+            let titleCharIndex = 0;
+            const titleText = storyTexts.titles[sectionIndex];
+            
+            const titleInterval = setInterval(() => {
+                if (titleCharIndex < titleText.length) {
+                    titleElement.textContent += titleText.charAt(titleCharIndex);
+                    titleCharIndex++;
+                } else {
+                    clearInterval(titleInterval);
+                    // Commencer le texte après le titre
+                    setTimeout(() => {
+                        startTextTypewriter(sectionIndex);
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        function startTextTypewriter(sectionIndex) {
+            const textElement = document.getElementById(`text-${sectionIndex}`);
+            let textCharIndex = 0;
+            const contentText = storyTexts.contents[sectionIndex];
+            
+            const textInterval = setInterval(() => {
+                if (textCharIndex < contentText.length) {
+                    textElement.textContent += contentText.charAt(textCharIndex);
+                    textCharIndex++;
+                } else {
+                    clearInterval(textInterval);
+                }
+            }, 50);
+        }
+
+        function nextSection() {
+            if (currentSection < totalSections - 1) {
+                goToSection(currentSection + 1);
+            }
+        }
+
+        function goToSection(sectionIndex) {
+            // Cacher la section actuelle
+            const currentSectionEl = document.querySelector(`.story-section[data-section="${currentSection}"]`);
+            currentSectionEl.classList.remove('active');
+            currentSectionEl.classList.add('previous');
+            
+            // Reset de la section actuelle
+            resetSection(currentSection);
+            
+            // Afficher la nouvelle section
+            setTimeout(() => {
+                currentSectionEl.classList.remove('previous');
+                
+                const newSectionEl = document.querySelector(`.story-section[data-section="${sectionIndex}"]`);
+                newSectionEl.classList.add('active');
+                
+                currentSection = sectionIndex;
+                updateProgressIndicator();
+                
+                // Auto-révéler pour les sections 2+ (index 1+)
+                if (sectionIndex > 0) {
+                    setTimeout(() => {
+                        revealStory(sectionIndex);
+                    }, 1000);
+                }
+            }, 500);
+        }
+
+        function resetSection(sectionIndex) {
+            const section = document.querySelector(`.story-section[data-section="${sectionIndex}"]`);
+            const card = section.querySelector('.story-card');
+            const overlay = section.querySelector('.overlay');
+            const textBlock = section.querySelector('.text-block');
+            const discoverBtn = section.querySelector('.discover-btn');
+            const continueBtn = section.querySelector('.continue-btn');
+
+            card.classList.remove('revealed');
+            overlay.classList.remove('visible');
+            textBlock.classList.remove('visible');
+            discoverBtn.classList.remove('hidden');
+            continueBtn.classList.remove('visible');
+        }
+
+        function restartStory() {
+            goToSection(0);
+        }
+
+        function updateProgressIndicator() {
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSection) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Gestion clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' && currentSection < totalSections - 1) {
+                nextSection();
+            } else if (e.key === 'ArrowLeft' && currentSection > 0) {
+                goToSection(currentSection - 1);
+            }
+        });
+    </script>
+</body>
+</html>

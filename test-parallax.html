@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Parallax - PERMALE</title>
+    
+    <!-- Jarallax CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .content {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        .jarallax {
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- Section normale pour créer du scroll -->
+    <div style="height: 100vh; background: #333; display: flex; align-items: center; justify-content: center;">
+        <h1 style="color: white;">Scrollez vers le bas pour voir l'effet parallaxe</h1>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="jarallax" data-speed="0.2">
+        <img class="jarallax-img" src="./images/hero-jewelry.jpg" alt="">
+        <div class="content">
+            <h1>Section 1 - Parallax Test</h1>
+            <p>Image jewelry avec vitesse 0.2 (lent)</p>
+        </div>
+    </div>
+
+    <!-- Section normale -->
+    <div style="height: 50vh; background: #666; display: flex; align-items: center; justify-content: center;">
+        <h2 style="color: white;">Continuez à scroller...</h2>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="jarallax" data-speed="0.5">
+        <img class="jarallax-img" src="./images/rings.jpg" alt="">
+        <div class="content">
+            <h1>Section 2 - Parallax Test</h1>
+            <p>Image rings avec vitesse 0.5 (moyen)</p>
+        </div>
+    </div>
+
+    <!-- Section normale -->
+    <div style="height: 50vh; background: #999; display: flex; align-items: center; justify-content: center;">
+        <h2 style="color: white;">Encore un peu...</h2>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="jarallax" data-speed="0.8">
+        <img class="jarallax-img" src="./images/gems.jpg" alt="">
+        <div class="content">
+            <h1>Section 3 - Parallax Test</h1>
+            <p>Image gems avec vitesse 0.8 (rapide)</p>
+        </div>
+    </div>
+
+    <!-- Section finale -->
+    <div style="height: 100vh; background: #222; display: flex; align-items: center; justify-content: center;">
+        <h1 style="color: white;">Fin du test - Remontez pour revoir l'effet</h1>
+    </div>
+
+    <!-- Jarallax JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.js"></script>
+    
+    <script>
+        // Test simple
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            console.log('Jarallax available:', typeof jarallax);
+            
+            // Initialiser Jarallax
+            jarallax(document.querySelectorAll('.jarallax'));
+            console.log('Jarallax initialized');
+        });
+    </script>
+</body>
+</html>

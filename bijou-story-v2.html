@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histoire PERMALE - Présentation Interactive</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;700&family=Roboto:wght@300;400;500;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Jarallax CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --permale-black: #000000;
+            --permale-white: #ffffff;
+            --permale-gold: #D4AF37;
+            --permale-silver: #C0C0C0;
+            --permale-light-grey: #f8f8f8;
+            --permale-cream: #fefefe;
+            --permale-dark-grey: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* CONTENEUR PRINCIPAL */
+        .story-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* SECTIONS D'HISTOIRE */
+        .story-section {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .story-section.fade-out {
+            opacity: 0;
+        }
+
+        /* FOND PARALLAXE */
+        .jarallax {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* OVERLAY POUR FONDS SOMBRES/CLAIRS */
+        .dark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2;
+        }
+
+        .light-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            z-index: 2;
+        }
+
+        /* CONTENEUR POUR CARTE ET TEXTE */
+        .content-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .content-container.visible {
+            opacity: 1;
+        }
+
+        /* HERO SECTION LAYOUT */
+        .story-section[data-section="0"] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* LAYOUT DEUX BLOCS DISTINCTS */
+        .story-section:not([data-section="0"]) .content-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 0 2rem;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .left-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .right-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Pour sections avec image à gauche, texte à droite */
+        .layout-left .left-block {
+            order: 1; /* Image à gauche */
+        }
+        
+        .layout-left .right-block {
+            order: 2; /* Texte à droite */
+        }
+
+        /* Pour sections avec texte à gauche, image à droite */
+        .layout-right .left-block {
+            order: 1; /* Texte à gauche */
+        }
+        
+        .layout-right .right-block {
+            order: 2; /* Image à droite */
+        }
+
+        /* CARTE MPPARALLAX */
+        .mp-parallax-card {
+            width: 400px;
+            height: 600px;
+            position: relative;
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease-out;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .mp-parallax-card:hover {
+            transform: scale(1.02);
+        }
+
+        .mp-parallax-card.picked {
+            transform: scale(1.05) rotateY(var(--rotateY, 0deg)) rotateX(var(--rotateX, 0deg));
+            box-shadow: 0 50px 100px rgba(0,0,0,0.7);
+        }
+
+        /* CONTENU DE LA CARTE */
+        .card-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(0);
+            overflow: hidden;
+        }
+
+        .card-layer.background {
+            transform: translateZ(-5px) scale(1.02);
+            filter: blur(1px);
+        }
+
+        .card-layer.main {
+            transform: translateZ(0px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-layer.nature {
+            transform: translateZ(-2px);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .card-layer.nature .card-image {
+            width: 110%;
+            height: 110%;
+            margin: -5%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .card-layer.femme {
+            transform: translateZ(2px);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .card-layer.femme .card-image {
+            pointer-events: auto;
+        }
+
+        .card-layer.foreground {
+            transform: translateZ(5px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 2rem;
+            z-index: 3;
+        }
+
+        .card-layer.logo {
+            transform: translateZ(10px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 1rem;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .card-logo {
+            width: 80px;
+            height: auto;
+            opacity: 0.95;
+            filter: brightness(1.2) drop-shadow(2px 2px 6px rgba(0,0,0,0.8));
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 8px;
+            border: 2px solid var(--permale-gold);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 100;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .card-image:hover {
+            transform: scale(1.05);
+        }
+
+        .card-image.nature {
+            object-fit: cover;
+        }
+
+        .card-image.femme {
+            object-fit: contain;
+            object-position: center;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--permale-gold);
+            text-shadow: 3px 3px 6px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .card-subtitle {
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.8);
+        }
+
+        .card-btn {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 1;
+            transform: scale(1);
+            z-index: 1000;
+            position: relative;
+        }
+
+        .card-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.5);
+        }
+
+        .card-btn.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        /* Masquer les boutons des cartes par défaut (sauf hero) */
+        .story-section:not([data-section="0"]) .card-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* BLOC TEXTE */
+        .text-block {
+            width: 100%;
+            padding: 2rem;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            text-align: left;
+        }
+
+        .text-block.visible {
+            opacity: 1;
+        }
+
+        /* COULEURS ADAPTIVES POUR TEXTE */
+        .dark-overlay ~ .content-container .text-block,
+        .dark-overlay ~ .left-block .text-block,
+        .dark-overlay ~ .right-block .text-block {
+            color: white;
+        }
+
+        .light-overlay ~ .content-container .text-block,
+        .light-overlay ~ .left-block .text-block,
+        .light-overlay ~ .right-block .text-block {
+            color: var(--permale-dark-grey);
+        }
+
+        .story-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--permale-gold);
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Ombre différente pour texte sur fond clair */
+        .light-overlay ~ .content-container .story-title,
+        .light-overlay ~ .left-block .story-title,
+        .light-overlay ~ .right-block .story-title {
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+
+        .story-content {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .continue-btn {
+            background: transparent;
+            color: var(--permale-gold);
+            border: 2px solid var(--permale-gold);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .continue-btn:hover {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            transform: translateY(15px);
+        }
+
+        .continue-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* GLOW EFFECT */
+        .glow-effect {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* LOGO PERMALE */
+        .permale-logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            height: 40px;
+            filter: invert(1);
+        }
+
+        /* INDICATEUR DE PROGRESSION */
+        .progress-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-dot.active {
+            background: var(--permale-gold);
+            transform: scale(1.2);
+        }
+        
+        /* CONTRÔLES DE NAVIGATION */
+        .navigation-controls {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            pointer-events: none;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid var(--permale-gold);
+            color: var(--permale-gold);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+        
+        .nav-btn:hover {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.3);
+        }
+        
+        .nav-btn:disabled:hover {
+            background: rgba(0,0,0,0.7);
+            color: rgba(255,255,255,0.3);
+            transform: scale(1);
+        }
+
+        /* MODAL PHOTO */
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .photo-modal.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        /* NOUVEAUX STYLES POUR LES SECTIONS CLIENT */
+        
+        /* Logo animé */
+        .logo-animated {
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes logoGlow {
+            0% { filter: brightness(1.2) drop-shadow(2px 2px 6px rgba(0,0,0,0.8)); }
+            100% { filter: brightness(1.5) drop-shadow(2px 2px 10px rgba(212, 175, 55, 0.6)); }
+        }
+        
+        /* Informations client */
+        .client-info {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid var(--permale-gold);
+        }
+        
+        .client-name, .proposal-date {
+            font-size: 1.1rem;
+            color: var(--permale-gold);
+            margin: 0.5rem 0;
+            font-weight: 500;
+        }
+        
+        /* Citation du directeur créatif */
+        .director-quote {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-left: 4px solid var(--permale-gold);
+            background: rgba(212, 175, 55, 0.1);
+            font-style: italic;
+            border-radius: 0 10px 10px 0;
+            text-align: center;
+            opacity: 0;
+            display: none;
+        }
+        
+        .director-quote cite {
+            display: block;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--permale-gold);
+            font-weight: 600;
+        }
+        
+        .director-quote.visible {
+            opacity: 1;
+            display: block;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        /* Détails de la demande */
+        .request-details {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            opacity: 0;
+            display: none;
+        }
+        
+        .request-details.visible {
+            opacity: 1;
+            display: block;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .project-specs {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .project-specs li {
+            margin: 1rem 0;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            border-left: 3px solid var(--permale-gold);
+        }
+        
+        /* Galerie interactive */
+        .interactive-gallery {
+            margin: 2rem 0;
+            opacity: 0;
+            display: none;
+        }
+        
+        .interactive-gallery.visible {
+            opacity: 1;
+            display: block;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .gallery-instruction {
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: var(--permale-gold);
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .gallery-btn {
+            background: transparent;
+            color: var(--permale-gold);
+            border: 1px solid var(--permale-gold);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .gallery-btn:hover {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            transform: translateY(-2px);
+        }
+        
+        /* Tableau de prix animé */
+        .pricing-table {
+            padding: 2rem;
+            color: white;
+        }
+        
+        .animated-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .animated-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .animated-table .price {
+            text-align: right;
+            font-weight: 600;
+            color: var(--permale-gold);
+        }
+        
+        .animated-table .total {
+            background: rgba(212, 175, 55, 0.2);
+            border-top: 2px solid var(--permale-gold);
+        }
+        
+        /* Détails de prix */
+        .pricing-details {
+            margin: 2rem 0;
+            opacity: 0;
+            display: none;
+        }
+        
+        .pricing-details.visible {
+            opacity: 1;
+            display: block;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .material-specs {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .material-specs li {
+            margin: 0.8rem 0;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .download-btn {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* Conteneur de particules flottantes style Digiqo */
+        .floating-particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 500;
+        }
+        
+        /* Particules flottantes individuelles */
+        .floating-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Animation style Digiqo pour particules flottantes */
+        @keyframes digiqoFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) rotateZ(0deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150vh) rotateZ(360deg);
+            }
+        }
+        
+        /* Témoignages animés */
+        .testimonials {
+            margin: 2rem 0;
+        }
+        
+        .testimonial {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--permale-gold);
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .testimonial cite {
+            color: var(--permale-gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Section finale */
+        .final-title {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, var(--permale-gold), #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .final-message {
+            font-size: 1.4rem;
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
+        
+        .contact-options {
+            margin: 3rem 0;
+        }
+        
+        .contact-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .contact-btn {
+            padding: 1.2rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .contact-btn.primary {
+            background: var(--permale-gold);
+            color: var(--permale-black);
+        }
+        
+        .contact-btn.secondary {
+            background: transparent;
+            color: var(--permale-gold);
+            border: 2px solid var(--permale-gold);
+        }
+        
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        
+        .contact-info {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+        
+        .contact-detail {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .thank-you {
+            margin: 4rem 0 2rem;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 15px;
+            border: 1px solid var(--permale-gold);
+        }
+        
+        .gratitude-message {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .signature {
+            color: var(--permale-gold);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .logo-final {
+            animation: logoFinalGlow 4s ease-in-out infinite;
+        }
+        
+        @keyframes logoFinalGlow {
+            0%, 100% { filter: brightness(1.2) drop-shadow(2px 2px 6px rgba(0,0,0,0.8)); }
+            50% { filter: brightness(1.8) drop-shadow(2px 2px 15px rgba(212, 175, 55, 0.8)); }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .mp-parallax-card {
+                width: 300px;
+                height: 450px;
+            }
+            
+            .card-image {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .text-block {
+                width: 80%;
+                position: relative;
+                top: auto;
+                transform: none;
+                margin-top: 2rem;
+            }
+            
+            .layout-left .text-block,
+            .layout-right .text-block {
+                left: 10%;
+                right: 10%;
+                text-align: center;
+            }
+            
+            .content-container {
+                flex-direction: column;
+                justify-content: center !important;
+                padding: 2rem;
+            }
+            
+            .story-title {
+                font-size: 2rem;
+            }
+            
+            .story-content {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo PERMALE -->
+    <img src="./permale/soloo fin blc.png" alt="PERMALE" class="permale-logo">
+    
+
+    <!-- Conteneur principal -->
+    <div class="story-container">
+        
+        <!-- Section 0: Introduction Immersive (Logo animé, message personnalisé) -->
+        <div class="story-section" data-section="0">
+            <div class="jarallax" data-speed="0.6">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            <div class="dark-overlay"></div>
+            
+            <div class="content-container visible">
+                <div class="mp-parallax-card" id="card-0">
+                    <div class="glow-effect" id="glow-0"></div>
+                    <div class="card-layer background">
+                        <img src="./images/permale-fond-2.png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="card-layer nature">
+                        <img src="./images/nature-background.jpg" alt="Nature" class="card-image nature">
+                    </div>
+                    <div class="card-layer logo">
+                        <img src="./permale/soloo fin blc.png" alt="PERMALE" class="card-logo logo-animated">
+                    </div>
+                    <div class="card-layer foreground">
+                        <h1 class="card-title">PERMALE</h1>
+                        <p class="card-subtitle">Maison de Joaillerie</p>
+                        <div class="client-info">
+                            <p class="client-name" id="client-name"></p>
+                            <p class="proposal-date" id="proposal-date"></p>
+                        </div>
+                        <button class="card-btn" onclick="startStory()">Découvrir votre proposition</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Univers PERMALE (Vidéo/diaporama, texte à droite, fond clair) -->
+        <div class="story-section layout-left" data-section="1">
+            <div class="jarallax" data-speed="0.4">
+                <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+            </div>
+            <div class="light-overlay"></div>
+            
+            <div class="content-container">
+                <div class="left-block">
+                    <div class="mp-parallax-card" id="card-1">
+                        <div class="glow-effect" id="glow-1"></div>
+                        <div class="card-layer background">
+                            <img src="./images/permale-fond-1.png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="card-layer main">
+                            <img src="./images/workshop.jpg" alt="Atelier PERMALE" class="card-image">
+                        </div>
+                        <div class="card-layer logo">
+                            <img src="./permale/soloo fin blc.png" alt="PERMALE" class="card-logo">
+                        </div>
+                        <div class="card-layer foreground">
+                            <h1 class="card-title">Notre Atelier</h1>
+                            <p class="card-subtitle">L'Excellence Artisanale</p>
+                            <button class="card-btn" onclick="continueStory()">Poursuivre</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-block">
+                    <div class="text-block">
+                        <h2 class="story-title" id="title-1">L'univers PERMALE</h2>
+                        <div class="story-content">
+                            <p id="text-1"></p>
+                            <blockquote class="director-quote">
+                                "À chaque création, nous insufflons notre passion pour l'excellence et notre respect des traditions joaillières. Votre bijou sera le reflet de cette quête permanente de perfection."
+                                <cite>- Directeur Créatif PERMALE</cite>
+                            </blockquote>
+                        </div>
+                        <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Demande du client (Texte à gauche, moodboard à droite, fond sombre) -->
+        <div class="story-section layout-right" data-section="2">
+            <div class="jarallax" data-speed="0.3">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            <div class="dark-overlay"></div>
+            
+            <div class="content-container">
+                <div class="left-block">
+                    <div class="text-block">
+                        <h2 class="story-title" id="title-2">Votre demande</h2>
+                        <div class="story-content">
+                            <p id="text-2"></p>
+                            <div class="request-details">
+                                <h3>Éléments essentiels de votre projet :</h3>
+                                <ul class="project-specs">
+                                    <li><strong>Type de bijou :</strong> <span id="jewelry-type">[Type sera inséré ici]</span></li>
+                                    <li><strong>Style souhaité :</strong> <span id="style-wanted">[Style sera inséré ici]</span></li>
+                                    <li><strong>Occasion spéciale :</strong> <span id="special-occasion">[Occasion sera insérée ici]</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                    </div>
+                </div>
+
+                <div class="right-block">
+                    <div class="mp-parallax-card" id="card-2">
+                        <div class="glow-effect" id="glow-2"></div>
+                        <div class="card-layer background">
+                            <img src="./images/permale-fond-2.png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="card-layer main">
+                            <img src="./images/gems.jpg" alt="Inspirations" class="card-image">
+                        </div>
+                        <div class="card-layer logo">
+                            <img src="./permale/soloo fin blc.png" alt="PERMALE" class="card-logo">
+                        </div>
+                        <div class="card-layer foreground">
+                            <h1 class="card-title">Moodboard</h1>
+                            <p class="card-subtitle">Vos Inspirations</p>
+                            <button class="card-btn" onclick="continueStory()">Poursuivre</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Propositions créatives (Galerie à gauche, texte à droite, fond clair) -->
+        <div class="story-section layout-left" data-section="3">
+            <div class="jarallax" data-speed="0.5">
+                <img class="jarallax-img" src="./images/permale-fond-2.png" alt="">
+            </div>
+            <div class="light-overlay"></div>
+            
+            <div class="content-container">
+                <div class="left-block">
+                    <div class="mp-parallax-card" id="card-3">
+                        <div class="glow-effect" id="glow-3"></div>
+                        <div class="card-layer background">
+                            <img src="./images/permale-fond-1.png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="card-layer main">
+                            <img src="./images/conception.jpg" alt="Dessins techniques" class="card-image">
+                        </div>
+                        <div class="card-layer logo">
+                            <img src="./permale/soloo fin blc.png" alt="PERMALE" class="card-logo">
+                        </div>
+                        <div class="card-layer foreground">
+                            <h1 class="card-title">Esquisses</h1>
+                            <p class="card-subtitle">Créations Personnalisées</p>
+                            <button class="card-btn" onclick="continueStory()">Explorer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-block">
+                    <div class="text-block">
+                        <h2 class="story-title" id="title-3">Nos propositions créatives</h2>
+                        <div class="story-content">
+                            <p id="text-3"></p>
+                            <div class="interactive-gallery">
+                                <p class="gallery-instruction">Cliquez sur les images pour explorer nos créations en détail</p>
+                                <div class="zoom-controls">
+                                    <button class="gallery-btn" onclick="showTechnicalDrawings()">Dessins techniques</button>
+                                    <button class="gallery-btn" onclick="showInspiredModels()">Modèles d'inspiration</button>
+                                    <button class="gallery-btn" onclick="compareProposals()">Comparer les propositions</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Proposition tarifaire (Texte à gauche, tableau à droite, fond sombre) -->
+        <div class="story-section layout-right" data-section="4">
+            <div class="jarallax" data-speed="0.2">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            <div class="dark-overlay"></div>
+            
+            <div class="content-container">
+                <div class="left-block">
+                    <div class="text-block">
+                        <h2 class="story-title" id="title-4">Proposition tarifaire</h2>
+                        <div class="story-content">
+                            <p id="text-4"></p>
+                            <div class="pricing-details">
+                                <h3>Informations complémentaires :</h3>
+                                <ul class="material-specs">
+                                    <li><strong>Or 18 carats :</strong> Origine certifiée, poinçonné PERMALE</li>
+                                    <li><strong>Pierres précieuses :</strong> Certification gemmologique incluse</li>
+                                    <li><strong>Finition :</strong> Polissage haute joaillerie, écrin de présentation</li>
+                                </ul>
+                                <button class="download-btn" onclick="downloadQuote()">Télécharger le devis PDF</button>
+                            </div>
+                        </div>
+                        <button class="continue-btn" onclick="nextSection()">Poursuivre</button>
+                    </div>
+                </div>
+
+                <div class="right-block">
+                    <div class="floating-particles-container" id="particles-container-4">
+                        <!-- Conteneur pour les particules flottantes -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Confirmation et contact (Texte à gauche, logo à droite, fond sombre) -->
+        <div class="story-section layout-right" data-section="5">
+            <div class="jarallax" data-speed="0.6">
+                <img class="jarallax-img" src="./images/permale-fond-1.png" alt="">
+            </div>
+            <div class="dark-overlay"></div>
+            
+            <div class="content-container">
+                <div class="left-block">
+                    <div class="text-block">
+                        <h2 class="story-title final-title" id="title-5">Donnons vie à votre rêve</h2>
+                        <div class="story-content">
+                            <p id="text-5"></p>
+                            
+                            <div class="contact-options" style="display: none;">
+                                <h3>Prochaines étapes :</h3>
+                                <div class="contact-buttons">
+                                    <button class="contact-btn primary" onclick="validateProposal()">Valider la proposition</button>
+                                    <button class="contact-btn secondary" onclick="requestMeeting()">Demander un rendez-vous</button>
+                                </div>
+                                
+                                <div class="contact-info">
+                                    <h4>Nous contacter directement :</h4>
+                                    <p class="contact-detail"><strong>Téléphone :</strong> +33 1 42 XX XX XX</p>
+                                    <p class="contact-detail"><strong>Email :</strong> contact@permale.com</p>
+                                    <p class="contact-detail"><strong>Atelier :</strong> Rendez-vous sur place ou consultation virtuelle</p>
+                                </div>
+                                
+                                <div class="thank-you">
+                                    <p class="gratitude-message">Merci de nous avoir fait confiance pour donner vie à votre création. Votre satisfaction est notre plus belle récompense.</p>
+                                    <p class="signature">L'équipe PERMALE Maison de Joaillerie</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="continue-btn" onclick="showContactOptions()">Nous contacter</button>
+                    </div>
+                </div>
+
+                <div class="right-block">
+                    <div class="mp-parallax-card" id="card-5">
+                        <div class="glow-effect" id="glow-5"></div>
+                        <div class="card-layer background">
+                            <img src="./images/permale-fond-2.png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="card-layer nature">
+                            <img src="./images/nature-background.jpg" alt="Nature" class="card-image nature">
+                        </div>
+                        <div class="card-layer logo">
+                            <img src="./permale/soloo fin blc.png" alt="PERMALE" class="card-logo logo-final">
+                        </div>
+                        <div class="card-layer foreground">
+                            <h1 class="card-title">PERMALE</h1>
+                            <p class="card-subtitle">Votre Maison de Joaillerie</p>
+                            <button class="card-btn" onclick="continueStory()">Finaliser</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateur de progression -->
+    <div class="progress-indicator">
+        <div class="progress-dot active" onclick="goToSection(0)"></div>
+        <div class="progress-dot" onclick="goToSection(1)"></div>
+        <div class="progress-dot" onclick="goToSection(2)"></div>
+        <div class="progress-dot" onclick="goToSection(3)"></div>
+        <div class="progress-dot" onclick="goToSection(4)"></div>
+        <div class="progress-dot" onclick="goToSection(5)"></div>
+    </div>
+    
+    <!-- Contrôles de navigation -->
+    <div class="navigation-controls">
+        <button class="nav-btn nav-prev" onclick="previousSection()" id="prevBtn">
+            <span>&larr;</span>
+        </button>
+        <button class="nav-btn nav-next" onclick="nextSection()" id="nextBtn">
+            <span>&rarr;</span>
+        </button>
+    </div>
+
+    <!-- Modal Photo -->
+    <div class="photo-modal" id="photoModal">
+        <div class="modal-close" onclick="closePhotoModal()">&times;</div>
+        <img class="modal-image" id="modalImage" alt="">
+    </div>
+
+    <!-- Jarallax JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jarallax@2/dist/jarallax.min.js"></script>
+    
+    <script>
+        let currentSection = 0;
+        const totalSections = 6;
+        let storyStarted = false;
+
+        // Données des textes complets selon le plan client
+        const storyTexts = {
+            titles: [
+                "Votre création unique, conçue exclusivement pour vous",
+                "L'univers PERMALE", 
+                "Votre demande",
+                "Nos propositions créatives",
+                "Proposition tarifaire",
+                "Confirmation et contact"
+            ],
+            contents: [
+                "Bienvenue dans l'univers PERMALE Maison de Joaillerie. Aujourd'hui commence votre voyage vers une création d'exception, pensée et réalisée spécialement pour vous. Chaque détail sera minutieusement étudié pour donner vie à votre rêve.",
+                "Dans notre atelier, nos maîtres artisans perpétuent un savoir-faire d'exception transmis de génération en génération. Chaque geste est précis, chaque technique maîtrisée avec passion. Notre engagement : transformer les matières les plus nobles en créations d'une beauté intemporelle.",
+                "Nous avons pris le temps d'analyser votre demande avec attention. Votre vision, vos inspirations et l'occasion spéciale qui motivent cette création sont au cœur de notre réflexion créative. Chaque élément que vous nous avez confié guide notre approche artistique.",
+                "Découvrez nos propositions créatives personnalisées, fruit de notre expertise et de votre inspiration. Nos esquisses et modèles techniques révèlent les différentes facettes de votre future création. Explorez, comparez et laissez-vous séduire par ces premières ébauches de votre rêve.",
+                "Voici le détail transparent de notre proposition tarifaire. Chaque poste - matériaux nobles, conception artistique, fabrication artisanale et finition d'exception - est clairement présenté. La qualité et l'authenticité de nos matériaux justifient cet investissement dans l'excellence.",
+                "Cette présentation touche à sa fin. Nous espérons avoir su transmettre notre passion et notre engagement à réaliser votre création de rêve. L'équipe PERMALE est maintenant à votre disposition pour concrétiser ce projet d'exception."
+            ]
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            jarallax(document.querySelectorAll('.jarallax'));
+            initMPParallaxEffect();
+            initCardClicks();
+            initButtonClicks();
+            updateProgressIndicator();
+            hideNonCurrentSections();
+            initClientInfo();
+            initPricingAnimation();
+        });
+        
+        // Initialiser les informations client
+        function initClientInfo() {
+            const clientName = document.getElementById('client-name');
+            const proposalDate = document.getElementById('proposal-date');
+            
+            if (clientName && proposalDate) {
+                // Animation d'apparition du nom client
+                setTimeout(() => {
+                    clientName.textContent = 'Madame Dubois';
+                    clientName.style.opacity = '0';
+                    clientName.style.animation = 'fadeInUp 1s ease-out forwards';
+                }, 2000);
+                
+                // Animation d'apparition de la date
+                setTimeout(() => {
+                    const today = new Date();
+                    const dateStr = today.toLocaleDateString('fr-FR', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    proposalDate.textContent = `Proposition du ${dateStr}`;
+                    proposalDate.style.opacity = '0';
+                    proposalDate.style.animation = 'fadeInUp 1s ease-out forwards';
+                }, 3500);
+            }
+        }
+        
+        // Animation du tableau de prix
+        function initPricingAnimation() {
+            const priceElements = document.querySelectorAll('.price');
+            priceElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                setTimeout(() => {
+                    element.style.animation = 'fadeInRight 0.8s ease-out forwards';
+                }, index * 200);
+            });
+        }
+
+        function hideNonCurrentSections() {
+            for (let i = 1; i < totalSections; i++) {
+                const section = document.querySelector(`.story-section[data-section="${i}"]`);
+                if (section) section.style.display = 'none';
+            }
+        }
+
+        // Effet MPParallax en JavaScript
+        function initMPParallaxEffect() {
+            const cards = document.querySelectorAll('.mp-parallax-card');
+            
+            cards.forEach((card, index) => {
+                const glow = document.getElementById(`glow-${index}`);
+                
+                card.addEventListener('mousemove', (e) => {
+                    if (glow) {
+                        handleMPParallaxMove(e, card, glow);
+                    }
+                });
+                
+                card.addEventListener('mouseenter', (e) => {
+                    card.classList.add('picked');
+                    if (glow) {
+                        glow.style.opacity = '0.6';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', (e) => {
+                    resetMPParallax(card, glow);
+                });
+            });
+        }
+
+        function handleMPParallaxMove(e, card, glow) {
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const deltaX = (e.clientX - centerX) / (rect.width / 2);
+            const deltaY = (e.clientY - centerY) / (rect.height / 2);
+            
+            // Rotation 3D ajustée
+            const rotateY = deltaX * 13;
+            const rotateX = -deltaY * 13;
+            
+            card.style.setProperty('--rotateY', rotateY + 'deg');
+            card.style.setProperty('--rotateX', rotateX + 'deg');
+            
+            // Effet glow
+            const glowX = e.clientX - rect.left - 100;
+            const glowY = e.clientY - rect.top - 100;
+            glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+            
+            // Parallaxe des couches ajustée
+            const layers = card.querySelectorAll('.card-layer');
+            layers.forEach((layer, index) => {
+                const depth = index * 4; // Augmenté à 4 pour plus d'effet
+                const translateX = deltaX * depth;
+                const translateY = deltaY * depth;
+                
+                if (layer.classList.contains('background')) {
+                    layer.style.transform = `translateZ(-5px) scale(1.02) translate(${translateX}px, ${translateY}px)`;
+                } else if (layer.classList.contains('nature')) {
+                    layer.style.transform = `translateZ(-2px) translate(${translateX * 0.5}px, ${translateY * 0.5}px)`;
+                } else if (layer.classList.contains('femme')) {
+                    layer.style.transform = `translateZ(2px) translate(${translateX * 1.2}px, ${translateY * 1.2}px)`;
+                } else if (layer.classList.contains('main')) {
+                    layer.style.transform = `translateZ(0px) translate(${translateX}px, ${translateY}px)`;
+                } else if (layer.classList.contains('logo')) {
+                    layer.style.transform = `translateZ(10px) translate(${translateX * 1.5}px, ${translateY * 1.5}px)`;
+                }
+                // On ne bouge pas la foreground pour garder le texte stable
+            });
+        }
+
+        function resetMPParallax(card, glow) {
+            card.classList.remove('picked');
+            card.style.setProperty('--rotateY', '0deg');
+            card.style.setProperty('--rotateX', '0deg');
+            
+            if (glow) {
+                glow.style.opacity = '0';
+            }
+            
+            const layers = card.querySelectorAll('.card-layer');
+            layers.forEach((layer, index) => {
+                if (layer.classList.contains('background')) {
+                    layer.style.transform = 'translateZ(-5px) scale(1.02)';
+                } else if (layer.classList.contains('nature')) {
+                    layer.style.transform = 'translateZ(-2px)';
+                } else if (layer.classList.contains('femme')) {
+                    layer.style.transform = 'translateZ(2px)';
+                } else if (layer.classList.contains('main')) {
+                    layer.style.transform = 'translateZ(0px)';
+                } else if (layer.classList.contains('logo')) {
+                    layer.style.transform = 'translateZ(10px)';
+                } else if (layer.classList.contains('foreground')) {
+                    layer.style.transform = 'translateZ(5px)';
+                }
+            });
+        }
+
+        function startStory() {
+            storyStarted = true;
+            goToSection(1);
+        }
+
+        function continueStory() {
+            const currentSectionEl = document.querySelector(`.story-section[data-section="${currentSection}"]`);
+            const textBlock = currentSectionEl.querySelector('.text-block');
+            const cardBtn = currentSectionEl.querySelector('.card-btn');
+            const continueBtn = currentSectionEl.querySelector('.continue-btn');
+
+            // Masquer le bouton de la carte
+            if (cardBtn) cardBtn.classList.add('hidden');
+            
+            // Section 4 (tarifs) : animation spéciale parchemin
+            if (currentSection === 4) {
+                setTimeout(() => {
+                    if (textBlock) textBlock.classList.add('visible');
+                    startTypewriterEffect(currentSection);
+                    
+                    // Démarrer l'animation holographique en parallèle
+                    setTimeout(() => {
+                        startHolographicAnimation();
+                    }, 1000);
+                    
+                    // Afficher le bouton continuer après les animations
+                    setTimeout(() => {
+                        if (continueBtn) continueBtn.classList.add('visible');
+                    }, 5000);
+                }, 800);
+            } else {
+                // Autres sections : comportement normal
+                setTimeout(() => {
+                    if (textBlock) textBlock.classList.add('visible');
+                    startTypewriterEffect(currentSection);
+                    
+                    // Afficher le bouton continuer après l'animation
+                    setTimeout(() => {
+                        if (continueBtn) continueBtn.classList.add('visible');
+                    }, 3000);
+                }, 800);
+            }
+        }
+
+        function startTypewriterEffect(sectionIndex) {
+            const titleElement = document.getElementById(`title-${sectionIndex}`);
+            const textElement = document.getElementById(`text-${sectionIndex}`);
+            
+            // Reset du contenu
+            titleElement.textContent = '';
+            textElement.textContent = '';
+            
+            // Effet typewriter sur le titre (30% plus rapide)
+            let titleCharIndex = 0;
+            const titleText = storyTexts.titles[sectionIndex];
+            
+            const titleInterval = setInterval(() => {
+                if (titleCharIndex < titleText.length) {
+                    titleElement.textContent += titleText.charAt(titleCharIndex);
+                    titleCharIndex++;
+                } else {
+                    clearInterval(titleInterval);
+                    // Commencer le texte après le titre
+                    setTimeout(() => {
+                        startTextTypewriter(sectionIndex);
+                    }, 350); // Réduit de 30%
+                }
+            }, 70); // Réduit de 30% (100ms -> 70ms)
+        }
+
+        function startTextTypewriter(sectionIndex) {
+            const textElement = document.getElementById(`text-${sectionIndex}`);
+            let textCharIndex = 0;
+            const contentText = storyTexts.contents[sectionIndex];
+            
+            const textInterval = setInterval(() => {
+                if (textCharIndex < contentText.length) {
+                    textElement.textContent += contentText.charAt(textCharIndex);
+                    textCharIndex++;
+                } else {
+                    clearInterval(textInterval);
+                    // Afficher les éléments supplémentaires après le texte
+                    showAdditionalElements(sectionIndex);
+                }
+            }, 25); // Encore plus rapide
+        }
+        
+        function showAdditionalElements(sectionIndex) {
+            setTimeout(() => {
+                if (sectionIndex === 1) {
+                    // Citation du directeur créatif
+                    const quote = document.querySelector('.director-quote');
+                    if (quote) {
+                        quote.classList.add('visible');
+                        // Animation machine à écrire pour la citation
+                        typewriterQuote(quote);
+                    }
+                } else if (sectionIndex === 2) {
+                    // Détails de la demande
+                    const details = document.querySelector('.request-details');
+                    if (details) details.classList.add('visible');
+                } else if (sectionIndex === 3) {
+                    // Galerie interactive
+                    const gallery = document.querySelector('.interactive-gallery');
+                    if (gallery) gallery.classList.add('visible');
+                } else if (sectionIndex === 4) {
+                    // Détails de prix et animation holographique
+                    const pricingDetails = document.querySelector('.pricing-details');
+                    if (pricingDetails) pricingDetails.classList.add('visible');
+                    startHolographicAnimation();
+                }
+            }, 500);
+        }
+        
+        function typewriterQuote(quoteElement) {
+            const textP = quoteElement.querySelector('p');
+            if (!textP) return; // Vérification de sécurité
+            
+            const originalText = textP.textContent;
+            if (!originalText) return; // Vérification de sécurité
+            
+            textP.textContent = '';
+            
+            let charIndex = 0;
+            const interval = setInterval(() => {
+                if (charIndex < originalText.length) {
+                    textP.textContent += originalText.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 30);
+        }
+        
+        function startHolographicAnimation() {
+            const container = document.getElementById('particles-container-4');
+            if (!container) {
+                return;
+            }
+            
+            // S'assurer que le conteneur est visible et bien positionné
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.width = '100vw';
+            container.style.height = '100vh';
+            container.style.pointerEvents = 'none';
+            container.style.zIndex = '500';
+            container.style.overflow = 'hidden';
+            
+            // Nettoyer le conteneur
+            container.innerHTML = '';
+            
+            // Créer les particules flottantes
+            createFloatingParticles(container);
+        }
+        
+        function createFloatingParticles(container) {
+            const particleCount = 25; // Nombre initial de particules (comme Digiqo)
+            
+            // Créer les particules initiales avec un délai échelonné
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => {
+                    createSingleParticle(container);
+                }, i * 300); // Nouvelle particule toutes les 300ms
+            }
+            
+            // Continuer à créer des particules en continu (effet infini comme Digiqo)
+            setInterval(() => {
+                if (container.children.length < 20) { // Limiter le nombre de particules à l'écran
+                    createSingleParticle(container);
+                }
+            }, 400); // Nouvelles particules moins fréquentes pour un effet plus naturel
+        }
+        
+        function createSingleParticle(container) {
+            const particle = document.createElement('div');
+            particle.className = 'floating-particle';
+            
+            // 3 types de particules comme Digiqo (or, argent, diamant)
+            const colors = [
+                { type: 'particle-gold', color: '#D4AF37' },
+                { type: 'particle-silver', color: '#C0C0C0' },
+                { type: 'particle-diamond', color: '#ffffff' }
+            ];
+            
+            const selectedColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Taille des particules (3-8px)
+            const size = 3 + Math.random() * 5;
+            
+            // Style de la particule
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.background = selectedColor.color;
+            particle.style.borderRadius = '50%';
+            particle.style.position = 'absolute';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '600';
+            
+            // Effet de brillance
+            if (selectedColor.type === 'particle-diamond') {
+                particle.style.boxShadow = `0 0 ${size * 2}px rgba(255, 255, 255, 0.8)`;
+            } else if (selectedColor.type === 'particle-gold') {
+                particle.style.boxShadow = `0 0 ${size}px rgba(212, 175, 55, 0.8)`;
+            } else {
+                particle.style.boxShadow = `0 0 ${size}px rgba(192, 192, 192, 0.8)`;
+            }
+            
+            // Position aléatoire horizontale
+            const leftPosition = Math.random() * 100;
+            particle.style.left = leftPosition + '%';
+            particle.style.top = '100vh'; // Commencer en bas de l'écran viewport
+            
+            // Animation style Digiqo : montée simple avec rotation et opacity
+            const duration = 6; // Durée comme Digiqo
+            const delay = Math.random() * 2;
+            
+            particle.style.animation = `digiqoFloat ${duration}s linear ${delay}s forwards`;
+            
+            // Ajouter au conteneur
+            container.appendChild(particle);
+            
+            // Supprimer la particule après l'animation
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, (duration + delay) * 1000);
+        }
+        
+        function typewriterParchmentText(element, text, callback) {
+            let charIndex = 0;
+            const interval = setInterval(() => {
+                if (charIndex < text.length) {
+                    element.textContent += text.charAt(charIndex);
+                    charIndex++;
+                } else {
+                    clearInterval(interval);
+                    if (callback) callback();
+                }
+            }, 40); // Vitesse de frappe pour effet manuscrit
+        }
+
+        function nextSection() {
+            if (currentSection < totalSections - 1) {
+                goToSection(currentSection + 1);
+            }
+        }
+        
+        function previousSection() {
+            if (currentSection > 0) {
+                goToSection(currentSection - 1);
+            }
+        }
+
+        function goToSection(sectionIndex) {
+            const currentSectionEl = document.querySelector(`.story-section[data-section="${currentSection}"]`);
+            const newSectionEl = document.querySelector(`.story-section[data-section="${sectionIndex}"]`);
+            
+            // Fade out la section actuelle
+            currentSectionEl.classList.add('fade-out');
+            
+            setTimeout(() => {
+                // Cacher complètement la section actuelle
+                currentSectionEl.style.display = 'none';
+                resetSection(currentSection);
+                
+                // Afficher et fade in la nouvelle section
+                newSectionEl.style.display = sectionIndex === 0 ? 'flex' : 'grid';
+                newSectionEl.classList.remove('fade-out');
+                
+                setTimeout(() => {
+                    const contentContainer = newSectionEl.querySelector('.content-container');
+                    if (contentContainer) {
+                        contentContainer.classList.add('visible');
+                    }
+                    
+                    // Les onclick sont dans le HTML, pas besoin de réinitialiser
+                    
+                    // Pour les sections autres que le hero, déclencher automatiquement le texte
+                    if (sectionIndex > 0) {
+                        setTimeout(() => {
+                            continueStory();
+                        }, 1000);
+                    }
+                }, 100);
+                
+                currentSection = sectionIndex;
+                updateProgressIndicator();
+            }, 1000);
+        }
+
+        function resetSection(sectionIndex) {
+            const section = document.querySelector(`.story-section[data-section="${sectionIndex}"]`);
+            if (!section) return;
+            
+            const textBlock = section.querySelector('.text-block');
+            const cardBtn = section.querySelector('.card-btn');
+            const continueBtn = section.querySelector('.continue-btn');
+            const contentContainer = section.querySelector('.content-container');
+
+            if (textBlock) textBlock.classList.remove('visible');
+            if (cardBtn) cardBtn.classList.remove('hidden');
+            if (continueBtn) continueBtn.classList.remove('visible');
+            if (contentContainer) contentContainer.classList.remove('visible');
+            section.classList.remove('fade-out');
+        }
+
+        function restartStory() {
+            goToSection(0);
+        }
+
+        function updateProgressIndicator() {
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSection) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            // Mettre à jour les boutons de navigation
+            updateNavigationButtons();
+        }
+        
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (prevBtn && nextBtn) {
+                // Désactiver le bouton précédent si on est à la première section
+                prevBtn.disabled = (currentSection === 0);
+                
+                // Désactiver le bouton suivant si on est à la dernière section
+                nextBtn.disabled = (currentSection === totalSections - 1);
+            }
+        }
+
+        // Modal photo
+        function openPhotoModal(imageSrc) {
+            console.log('Opening modal for:', imageSrc);
+            const modal = document.getElementById('photoModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            if (modal && modalImage) {
+                modalImage.src = imageSrc;
+                modal.classList.add('visible');
+                modal.style.display = 'flex';
+                console.log('Modal should be visible now');
+                
+                // Force le focus et l'affichage
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    modal.style.visibility = 'visible';
+                }, 10);
+            } else {
+                console.error('Modal elements not found', modal, modalImage);
+            }
+        }
+
+        function closePhotoModal() {
+            console.log('Closing modal');
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('visible');
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Initialiser les clics sur les boutons
+        function initButtonClicks() {
+            const buttons = document.querySelectorAll('.card-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Empêche le clic de remonter à la carte
+                    console.log('Button clicked, propagation stopped');
+                });
+            });
+        }
+
+        // Initialiser les clics sur les cartes
+        function initCardClicks() {
+            const cards = document.querySelectorAll('.mp-parallax-card');
+            console.log('Found cards:', cards.length);
+            
+            cards.forEach((card, index) => {
+                card.addEventListener('click', function(e) {
+                    console.log('Card clicked:', index);
+                    
+                    // Définir les images pour chaque carte
+                    const images = [
+                        './images/nature-background.jpg', // Card 0 - Introduction
+                        './images/workshop.jpg',          // Card 1 - Atelier
+                        './images/gems.jpg',              // Card 2 - Moodboard
+                        './images/conception.jpg',        // Card 3 - Esquisses
+                        null,                             // Card 4 - Parchemin (pas d'image)
+                        './images/nature-background.jpg'  // Card 5 - Final
+                    ];
+                    
+                    if (images[index]) {
+                        openPhotoModal(images[index]);
+                    } else if (index === 4) {
+                        // Section 4 : pas de modal photo mais animation du parchemin
+                        console.log('Section tarifs - parchemin actif');
+                    }
+                });
+                
+                card.style.cursor = 'pointer';
+                console.log('Added click handler to card', index);
+            });
+        }
+
+        // Fermer le modal - plusieurs méthodes
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('photoModal');
+            const modalClose = document.querySelector('.modal-close');
+            const modalImage = document.getElementById('modalImage');
+            
+            // Clic sur le X
+            if (modalClose) {
+                modalClose.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log('Close button clicked');
+                    closePhotoModal();
+                });
+            }
+            
+            // Clic sur le fond (pas sur l'image)
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        console.log('Background clicked');
+                        closePhotoModal();
+                    }
+                });
+            }
+            
+            // Double-clic sur l'image pour fermer
+            if (modalImage) {
+                modalImage.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    console.log('Image double-clicked');
+                    closePhotoModal();
+                });
+            }
+        });
+
+        // Gestion clavier
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                console.log('Escape key pressed');
+                closePhotoModal();
+            } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSection();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSection();
+            }
+        });
+        
+        // Nouvelles fonctions pour les interactions client
+        function showTechnicalDrawings() {
+            alert('Ouverture de la galerie des dessins techniques...');
+        }
+        
+        function showInspiredModels() {
+            alert('Présentation des modèles d\'inspiration...');
+        }
+        
+        function compareProposals() {
+            alert('Mode comparaison des propositions activé...');
+        }
+        
+        function downloadQuote() {
+            alert('Téléchargement du devis PDF en cours...');
+        }
+        
+        function validateProposal() {
+            alert('Merci ! Votre validation a été enregistrée. Nous vous recontacterons sous 24h.');
+        }
+        
+        function requestMeeting() {
+            alert('Demande de rendez-vous enregistrée. Nous vous proposerons des créneaux sous 24h.');
+        }
+        
+        function showContactModal() {
+            alert('Ouverture du formulaire de contact personnalisé...');
+        }
+        
+        function showContactOptions() {
+            const contactOptions = document.querySelector('.contact-options');
+            if (contactOptions) {
+                contactOptions.style.display = 'block';
+                contactOptions.style.animation = 'fadeInUp 1s ease-out';
+            }
+        }
+    </script>
+</body>
+</html>
